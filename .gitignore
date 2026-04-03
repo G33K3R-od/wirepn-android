@@ -23,6 +23,7 @@ captures/
 *.class
 
 # Signing (never commit keys)
+keystore.properties
 *.jks
 *.keystore
 

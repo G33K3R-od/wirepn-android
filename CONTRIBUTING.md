@@ -32,6 +32,7 @@ On Windows: `gradlew.bat lint assembleDebug`.
 ## Security and secrets
 
 - Do not commit keystores, passwords, full WireGuard configs with keys, or sensitive paths in `local.properties`.
+- Do not commit `keystore.properties` (it is gitignored). Release signing is documented in [`README.md`](README.md) (local file + optional GitHub Actions secrets `RELEASE_*`).
 - Do not add logging of private keys or full configuration text.
 
 ## License

@@ -55,14 +55,45 @@ gradlew.bat lint assembleDebug
 ```
 
 - **Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (debug uses `applicationId` suffix `.debug`).
-- **Release (local):** configure `signingConfigs` in `app/build.gradle.kts` and sign with your own keystore; never commit signing keys.
+
+### Release signing (local installs & stores)
+
+Release builds use **`keystore.properties`** at the **repository root** (not committed). Copy [`keystore.properties.example`](keystore.properties.example) to `keystore.properties` and set:
+
+- `storeFile` — path to your `.jks` / `.keystore` (relative to repo root or absolute)
+- `storePassword`, `keyAlias`, `keyPassword`
+
+Alternatively, set environment variables (same values as in CI): `SIGNING_STORE_FILE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`.
+
+Then:
+
+```bash
+./gradlew assembleRelease
+# Play-style bundle:
+./gradlew bundleRelease
+```
+
+**Without** `keystore.properties` / env, `assembleRelease` **fails locally** (no fallback), so you do not accidentally ship an unsigned release. **CI** without secrets still builds a **debug-signed** release APK for testing (see below).
 
 ### CI release APK
 
-The [Release APK](.github/workflows/release.yml) workflow builds a signed **release** APK on GitHub Actions (signed with the CI debug keystore so the artifact is installable without repository secrets).
+The [Release APK](.github/workflows/release.yml) workflow:
+
+1. **Optional — real signing:** add these **repository secrets** (Settings → Secrets and variables → Actions). If `RELEASE_KEYSTORE_BASE64` is set, the workflow decodes it and signs the release APK with your upload key (suitable for sideloading and aligned with Play/AppGallery upload keys if you use the same keystore).
+
+   | Secret | Meaning |
+   |--------|---------|
+   | `RELEASE_KEYSTORE_BASE64` | Base64-encoded `.jks` / `.keystore` file |
+   | `RELEASE_STORE_PASSWORD` | Keystore password |
+   | `RELEASE_KEY_ALIAS` | Key alias |
+   | `RELEASE_KEY_PASSWORD` | Private key password |
+
+   Encode the file (example): `base64 -w0 my-release.jks` (Linux/macOS) or on Windows use WSL / OpenSSL / a small script — the output is one line for the secret value.
+
+2. **If those secrets are missing:** the workflow still runs with **`CI=true`**, and the release build is signed with the **ephemeral CI debug keystore** (installable for tests; not for store uploads).
 
 - **Tag push** (`v*`, e.g. `v0.1.0`): uploads the APK to the workflow run **and** attaches it to a **GitHub Release** for that tag.
-- **Release notes:** add a Markdown file at the repo root named `RELEASE_NOTE_<tag>.md` (e.g. `RELEASE_NOTE_v0.1.0.md` for tag `v0.1.0`). If it exists, its contents become the release description; otherwise GitHub auto-generates notes from commits.
+- **Release notes:** add `RELEASE_NOTE_<tag>.md` at the repo root (e.g. `RELEASE_NOTE_v0.1.0.md`). If present, it becomes the release description; otherwise GitHub auto-generates notes from commits.
 - **Manual run** (*Actions → Release APK → Run workflow*): uploads the APK as a workflow **artifact** only (no GitHub Release).
 
 ## Architecture (`:app`)
