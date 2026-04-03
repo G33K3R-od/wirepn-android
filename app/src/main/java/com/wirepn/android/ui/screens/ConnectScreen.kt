@@ -17,9 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.wirepn.android.R
-import com.wirepn.android.ui.theme.WirepnMonoFamily
 import com.wirepn.android.vpn.VpnConnectionState
 
 @Composable
@@ -53,7 +53,7 @@ fun ConnectScreen(
                     text = activeProfileName?.takeIf { it.isNotBlank() }
                         ?: stringResource(R.string.none_selected),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontFamily = WirepnMonoFamily,
+                    fontFamily = FontFamily.Monospace,
                 )
             }
         }
