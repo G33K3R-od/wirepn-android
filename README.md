@@ -60,7 +60,8 @@ gradlew.bat lint assembleDebug
 The [Release APK](.github/workflows/release.yml) workflow builds a signed **release** APK on GitHub Actions (signed with the CI debug keystore so the artifact is installable without repository secrets).
 
 - **Tag push** (`v*`, e.g. `v0.1.0`): uploads the APK to the workflow run **and** attaches it to a **GitHub Release** for that tag.
-- **Manual run** (*Actions → Release APK → Run workflow*): uploads the APK as a workflow **artifact** only.
+- **Release notes:** add a Markdown file at the repo root named `RELEASE_NOTE_<tag>.md` (e.g. `RELEASE_NOTE_v0.1.0.md` for tag `v0.1.0`). If it exists, its contents become the release description; otherwise GitHub auto-generates notes from commits.
+- **Manual run** (*Actions → Release APK → Run workflow*): uploads the APK as a workflow **artifact** only (no GitHub Release).
 
 ## Architecture (`:app`)
 
