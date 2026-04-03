@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com/about/versions/oreo)
 [![CI](https://github.com/G33K3R-od/wirepn-android/actions/workflows/ci.yml/badge.svg)](https://github.com/G33K3R-od/wirepn-android/actions/workflows/ci.yml)
+[![Release](https://github.com/G33K3R-od/wirepn-android/actions/workflows/release.yml/badge.svg)](https://github.com/G33K3R-od/wirepn-android/actions/workflows/release.yml)
 
 A **WireGuard** client in the **WirePN** family: import profiles, manage tunnels, connect and disconnect using the standard Android VPN API.
 
@@ -52,7 +53,14 @@ gradlew.bat lint assembleDebug
 ```
 
 - **Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (debug uses `applicationId` suffix `.debug`).
-- **Release:** configure `signingConfigs` in `app/build.gradle.kts` and sign with your own keystore; never commit signing keys.
+- **Release (local):** configure `signingConfigs` in `app/build.gradle.kts` and sign with your own keystore; never commit signing keys.
+
+### CI release APK
+
+The [Release APK](.github/workflows/release.yml) workflow builds a signed **release** APK on GitHub Actions (signed with the CI debug keystore so the artifact is installable without repository secrets).
+
+- **Tag push** (`v*`, e.g. `v0.1.0`): uploads the APK to the workflow run **and** attaches it to a **GitHub Release** for that tag.
+- **Manual run** (*Actions → Release APK → Run workflow*): uploads the APK as a workflow **artifact** only.
 
 ## Architecture (`:app`)
 

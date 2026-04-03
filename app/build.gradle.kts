@@ -25,6 +25,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // GitHub Actions and other CI: sign with the debug keystore so assembleRelease
+            // produces an installable APK artifact without repo secrets.
+            if (System.getenv("CI") == "true") {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
