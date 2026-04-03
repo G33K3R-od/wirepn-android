@@ -1,0 +1,16 @@
+# Normalize line endings for text files
+* text=auto eol=lf
+
+# Windows scripts keep CRLF where it helps
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.jar binary
+*.keystore binary
+*.jks binary

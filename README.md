@@ -1,68 +1,80 @@
-# WirePN Android
+# WirePN для Android
 
-Мобильный клиент **WireGuard** в линейке **WirePN** (рядом с десктопным [WirePN Windows](https://github.com/your-org/wirepn-windows) — замените ссылку на фактический репозиторий Electron-клиента).
+Клиент **WireGuard** в линейке **WirePN**: импорт профилей, список туннелей, подключение и отключение через стандартный Android VPN API.
 
-## Назначение
+**Репозиторий:** [github.com/G33K3R-od/WireGuard-app](https://github.com/G33K3R-od/WireGuard-app)
 
-Импорт профилей WireGuard (`.conf` или текст), список профилей с выбором активного, подключение и отключение туннеля через стандартные Android VPN API. Состояние подключения и краткие сообщения об ошибках отображаются на экране. Конфигурации и ключи хранятся в **EncryptedSharedPreferences** (AES-GCM).
+## Возможности
+
+- Импорт конфигурации из `.conf` или из текста буфера обмена
+- Несколько профилей и выбор активного
+- Состояние подключения и краткие сообщения об ошибках на экране
+- Нижняя навигация: Connect / Profiles / Settings; в debug-сборке дополнительно Logs
+- Тема: системная / светлая / тёмная; локализация **en** по умолчанию, **ru** в `values-ru/`
+- Хранение конфигураций и ключей в **EncryptedSharedPreferences** (AES-GCM)
+
+Туннель реализован на официальной библиотеке [`com.wireguard.android:tunnel`](https://github.com/WireGuard/wireguard-android) (**wireguard-go**, `GoBackend`), без самописного криптопротокола.
 
 ## Требования
 
-- **Android Studio** Koala (2024.1.1) или новее с Android Gradle Plugin 8.7+
-- **JDK 17**
-- **minSdk 26** (Android 8.0), **targetSdk 35**
-- Android SDK Platform 35 (ставится через SDK Manager)
+| Компонент | Версия |
+|-----------|--------|
+| Android Studio | Koala (2024.1.1) или новее |
+| Android Gradle Plugin | 8.7.x (см. `gradle/libs.versions.toml`) |
+| JDK | 17 |
+| minSdk / targetSdk | 26 / 35 |
+| Android SDK Platform | 35 |
 
-Укажите путь к SDK в `local.properties` (файл создаётся Android Studio автоматически):
+Путь к SDK задаётся в `local.properties` (файл обычно создаёт Android Studio):
 
 ```properties
-sdk.dir=/path/to/Android/sdk
+sdk.dir=C\:\\Users\\You\\AppData\\Local\\Android\\Sdk
 ```
 
-## Структура модулей (текущая итерация)
-
-| Модуль | Роль |
-|--------|------|
-| `:app` | Единственный модуль MVP: UI (Jetpack Compose, Material 3), `ViewModel`, репозиторий профилей, контроллер туннеля |
-
-Пакеты внутри `app`:
-
-- `com.wirepn.android.data` — модель профиля, `EncryptedSharedPreferences`, репозиторий
-- `com.wirepn.android.vpn` — обёртка над официальной библиотекой `com.wireguard.android:tunnel` (`GoBackend`, `Tunnel`)
-- `com.wirepn.android.ui` — экраны и тема
-
-**Зависимости:** Compose BOM, Material 3, **Navigation Compose** (нижняя навигация: Connect / Profiles / Settings; в debug — Logs), Material Icons Extended, Kotlin Serialization, `androidx.security:security-crypto`. Тема и палитра выровнены с **WirePN Windows** (зелёный акцент, нейтральные фоны; IBM Plex Sans + IBM Plex Mono в `res/font`). Строки: **en** по умолчанию, **ru** в `values-ru/`. Настройки темы: системная / светлая / тёмная. DI — `Application` + фабрика `ViewModel`.
-
-Туннель реализован через **wireguard-go** в составе артефакта WireGuard (`GoBackend`), без самописного криптопротокола.
+На Linux/macOS используйте обычный путь, например `/path/to/Android/sdk`.
 
 ## Сборка
 
-**Debug:**
+Из корня проекта:
 
 ```bash
+# Windows (PowerShell / CMD)
+gradlew.bat assembleDebug
+
+# Linux / macOS
 ./gradlew assembleDebug
 ```
 
-APK: `app/build/outputs/apk/debug/app-debug.apk` (с суффиксом `applicationId` `.debug`).
+**Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (у debug-сборки суффикс `applicationId`: `.debug`).
 
-**Release** (подпись через свой keystore):
-
-```bash
-./gradlew assembleRelease
-```
-
-Настройте `signingConfigs` в `app/build.gradle.kts` и храните ключи вне репозитория.
-
-**Lint:**
+**Release** (нужен свой keystore):
 
 ```bash
-./gradlew lint
+gradlew.bat assembleRelease
 ```
 
-## Безопасность и логи
+Настройте `signingConfigs` в `app/build.gradle.kts` и не коммитьте ключи в репозиторий.
 
-В релизной сборке не добавляйте логирование полного конфига и приватных ключей. Текущий код не пишет содержимое конфигурации в лог.
+**Проверка lint:**
+
+```bash
+gradlew.bat lint
+```
+
+## Архитектура (модуль `app`)
+
+| Пакет | Назначение |
+|-------|------------|
+| `com.wirepn.android.data` | Модель профиля, EncryptedSharedPreferences, репозиторий |
+| `com.wirepn.android.vpn` | Обёртка над WireGuard (`GoBackend`, `Tunnel`) |
+| `com.wirepn.android.ui` | Jetpack Compose, Material 3, экраны, тема |
+
+**Стек:** Compose BOM, Material 3, Navigation Compose, Kotlin Serialization, `androidx.security:security-crypto`. DI — через `Application` и фабрику `ViewModel`.
+
+## Безопасность
+
+В релизной сборке не логируйте полный конфиг и приватные ключи. Текущая реализация не пишет содержимое конфигурации в лог.
 
 ## Лицензия
 
-MIT — см. [LICENSE](LICENSE). Библиотека туннеля WireGuard распространяется под Apache-2.0 (см. артефакт `com.wireguard.android:tunnel`).
+Проект распространяется под [MIT](LICENSE). Библиотека туннеля WireGuard — под Apache-2.0 (артефакт `com.wireguard.android:tunnel`).
