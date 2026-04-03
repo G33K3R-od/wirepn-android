@@ -1,3 +1,4 @@
+import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -21,15 +22,36 @@ val releaseStorePassword = envOrProp("SIGNING_STORE_PASSWORD", "storePassword")
 val releaseKeyAlias = envOrProp("SIGNING_KEY_ALIAS", "keyAlias")
 val releaseKeyPassword = envOrProp("SIGNING_KEY_PASSWORD", "keyPassword")
 
-val releaseKeystoreFile = storeFilePath?.let { path ->
-    val f = rootProject.file(path)
-    if (f.exists()) f else null
+fun resolveReleaseKeystore(pathStr: String?): File? {
+    if (pathStr.isNullOrBlank()) return null
+    val trimmed = pathStr.trim().removeSurrounding("\"")
+    if (trimmed.isEmpty()) return null
+    val relative = rootProject.file(trimmed)
+    if (relative.exists()) return relative
+    val absolute = File(trimmed)
+    return absolute.takeIf { it.isAbsolute && it.exists() }
 }
+
+val releaseKeystoreFile = resolveReleaseKeystore(storeFilePath)
 
 val releaseSigningReady = releaseKeystoreFile != null &&
     !releaseStorePassword.isNullOrBlank() &&
     !releaseKeyAlias.isNullOrBlank() &&
     !releaseKeyPassword.isNullOrBlank()
+
+if (rootProject.file("keystore.properties").exists() && !releaseSigningReady) {
+    logger.lifecycle("")
+    logger.lifecycle("WirePN: keystore.properties found but release signing is NOT active.")
+    when {
+        storeFilePath.isNullOrBlank() -> logger.lifecycle("  → Set storeFile=… to your .jks path (repo-relative or absolute).")
+        releaseKeystoreFile == null -> logger.lifecycle("  → Keystore file not found: $storeFilePath")
+        releaseStorePassword.isNullOrBlank() -> logger.lifecycle("  → storePassword (or SIGNING_STORE_PASSWORD) is empty.")
+        releaseKeyAlias.isNullOrBlank() -> logger.lifecycle("  → keyAlias (or SIGNING_KEY_ALIAS) is empty.")
+        releaseKeyPassword.isNullOrBlank() -> logger.lifecycle("  → keyPassword (or SIGNING_KEY_PASSWORD) is empty.")
+    }
+    logger.lifecycle("  Unsigned app-release-unsigned.apk will be produced. Fix the above and run assembleRelease again.")
+    logger.lifecycle("")
+}
 
 android {
     namespace = "com.wirepn.android"
@@ -39,8 +61,8 @@ android {
         applicationId = "com.wirepn.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "1.0.0"
     }
 
     signingConfigs {
@@ -55,6 +77,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Matches what Android Studio Run often uses for the debug variant (…android.debug).
+            // Without this, a stale Run config can try to launch com.wirepn.android.debug while the
+            // APK is com.wirepn.android → “Activity … does not exist”.
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

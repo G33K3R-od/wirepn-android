@@ -1,6 +1,7 @@
 package com.wirepn.android.vpn
 
 import android.content.Context
+import com.wirepn.android.data.AppPreferences
 import com.wireguard.android.backend.BackendException
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
@@ -22,6 +23,7 @@ sealed class VpnConnectionState {
 
 class WireGuardTunnelController(
     context: Context,
+    private val appPreferences: AppPreferences,
 ) {
     private val backend = GoBackend(context.applicationContext)
 
@@ -32,8 +34,13 @@ class WireGuardTunnelController(
 
     suspend fun connect(configText: String, tunnelName: String) = withContext(Dispatchers.IO) {
         _state.value = VpnConnectionState.Connecting
+        val mergedText = WireGuardConfigMerge.mergeSplitTunneling(
+            configText,
+            appPreferences.splitTunnelMode.value,
+            appPreferences.splitTunnelAppPackages.value,
+        )
         val config = try {
-            Config.parse(ByteArrayInputStream(configText.toByteArray(Charsets.UTF_8)))
+            Config.parse(ByteArrayInputStream(mergedText.toByteArray(Charsets.UTF_8)))
         } catch (e: BadConfigException) {
             _state.value = VpnConnectionState.Error(e.message ?: "Bad config")
             return@withContext
@@ -75,6 +82,14 @@ class WireGuardTunnelController(
         } finally {
             activeTunnel = null
         }
+    }
+
+    suspend fun queryVpnLockdown(): Pair<Boolean, Boolean> = withContext(Dispatchers.IO) {
+        runCatching {
+            val alwaysOn = backend.javaClass.getMethod("isAlwaysOn").invoke(backend) as Boolean
+            val lockdown = backend.javaClass.getMethod("isLockdownEnabled").invoke(backend) as Boolean
+            alwaysOn to lockdown
+        }.getOrDefault(false to false)
     }
 
     private fun backendMessage(e: BackendException): String {

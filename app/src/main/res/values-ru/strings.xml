@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">WirePN</string>
+    <string name="qs_tile_label">WirePN</string>
     <string name="app_subtitle">WireGuard VPN для Android</string>
 
     <string name="nav_connect">Подключение</string>
@@ -48,6 +49,31 @@
     <string name="theme_dark">Тёмная</string>
     <string name="settings_version">Версия</string>
     <string name="settings_about">WirePN использует официальную библиотеку туннеля WireGuard (wireguard-go). Ключи и конфигурации хранятся на устройстве в зашифрованном виде.</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="nav_back">Назад</string>
+
+    <string name="notification_channel_vpn_name">Статус VPN</string>
+    <string name="notification_channel_vpn_description">Пока WirePN подключается или подключён</string>
+    <string name="notification_vpn_title">WirePN</string>
+    <string name="notification_vpn_connected_text">Подключено — %1$s</string>
+
+    <string name="settings_vpn_section">VPN и сеть</string>
+    <string name="settings_always_on_hint">Переход в системные настройки VPN Android. «Постоянный VPN» обеспечивает автоматическое VPN-подключение при работе устройства. «Блокировать соединения без VPN» запрещает доступ в интернет при отключённом VPN. Эти параметры задаются в системе Android и не настраиваются в WirePN.</string>
+    <string name="settings_open_vpn_settings">Открыть настройки VPN Android</string>
+    <string name="settings_vpn_status_line">Как видит система: постоянный VPN — %1$s, блокировка без VPN — %2$s</string>
+    <string name="settings_split_tunnel_exclude_count">Идут в обход VPN (без туннеля): %d</string>
+    <string name="settings_split_tunnel_include_count">Только через VPN: %d</string>
+    <string name="settings_app_routing_hint">Укажите, какие приложения идут через VPN, а какие — как обычно. При включённом VPN список применится сам.</string>
+    <string name="settings_manage_app_routing">Настроить приложения</string>
+    <string name="app_routing_title">Маршрутизация VPN</string>
+    <string name="split_tunnel_mode_exclude">Обход</string>
+    <string name="split_tunnel_mode_include">Только VPN</string>
+    <string name="split_tunnel_subtitle_exclude">Выбранные приложения идут в обход туннеля (обычный интернет).</string>
+    <string name="split_tunnel_subtitle_include">Только выбранные приложения используют VPN; остальной трафик — мимо туннеля.</string>
+    <string name="split_tunnel_search_hint">Поиск приложений</string>
+    <string name="split_tunnel_empty">Ничего не найдено.</string>
 
     <string name="logs_placeholder">Просмотр журнала доступен в debug-сборках. В release подробная диагностика отключена.</string>
     <string name="logs_title">Журнал</string>

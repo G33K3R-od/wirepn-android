@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,12 +45,15 @@ import androidx.navigation.compose.rememberNavController
 import com.wirepn.android.ui.components.WirepnBottomBar
 import com.wirepn.android.ui.components.WirepnNavTab
 import com.wirepn.android.ui.components.WirepnTopBar
+import com.wirepn.android.ui.components.WirepnTopBarWithBack
 import com.wirepn.android.ui.navigation.WirepnRoutes
 import com.wirepn.android.ui.screens.ConnectScreen
+import com.wirepn.android.ui.screens.ExcludedAppsScreen
 import com.wirepn.android.ui.screens.LogsScreen
 import com.wirepn.android.ui.screens.ProfilesScreen
 import com.wirepn.android.ui.screens.SettingsScreen
 import com.wirepn.android.ui.state.rememberVpnDisplayState
+import com.wirepn.android.vpn.VpnConnectionState
 
 private val TabMotionEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 private const val TabEnterMs = 320
@@ -95,6 +99,8 @@ fun WirepnApp(
     val vpnState by viewModel.vpnState.collectAsState()
     val vpnDisplay by rememberVpnDisplayState(vpnState)
     val themePreference by viewModel.themePreference.collectAsState()
+    val splitTunnelMode by viewModel.splitTunnelMode.collectAsState()
+    val splitTunnelAppPackages by viewModel.splitTunnelAppPackages.collectAsState()
     val context = LocalContext.current
 
     val activeProfile = remember(profiles, activeId) {
@@ -147,6 +153,22 @@ fun WirepnApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    var vpnLockdown by remember { mutableStateOf<Pair<Boolean, Boolean>?>(null) }
+    LaunchedEffect(vpnState, currentDestination?.route) {
+        if (currentDestination?.route == WirepnRoutes.SETTINGS && vpnState is VpnConnectionState.Connected) {
+            vpnLockdown = viewModel.queryVpnLockdown()
+        } else {
+            vpnLockdown = null
+        }
+    }
+
+    val connectSignal by viewModel.externalConnectSignal.collectAsState()
+    LaunchedEffect(connectSignal) {
+        if (connectSignal > 0) {
+            requestConnect()
+        }
+    }
+
     val bottomTabs = buildList {
         add(
             WirepnNavTab(
@@ -180,15 +202,28 @@ fun WirepnApp(
         }
     }
 
+    val showSubScreen = currentDestination?.route == WirepnRoutes.EXCLUDED_APPS
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { WirepnTopBar() },
+        topBar = {
+            if (showSubScreen) {
+                WirepnTopBarWithBack(
+                    title = stringResource(R.string.app_routing_title),
+                    onBack = { navController.popBackStack() },
+                )
+            } else {
+                WirepnTopBar()
+            }
+        },
         bottomBar = {
-            WirepnBottomBar(
-                navController = navController,
-                tabs = bottomTabs,
-                currentDestination = currentDestination,
-            )
+            if (!showSubScreen) {
+                WirepnBottomBar(
+                    navController = navController,
+                    tabs = bottomTabs,
+                    currentDestination = currentDestination,
+                )
+            }
         },
     ) { padding ->
         NavHost(
@@ -248,7 +283,22 @@ fun WirepnApp(
                 SettingsScreen(
                     themePreference = themePreference,
                     onThemeChange = { viewModel.setThemePreference(it) },
+                    vpnLockdown = vpnLockdown,
+                    splitTunnelMode = splitTunnelMode,
+                    splitTunnelAppCount = splitTunnelAppPackages.size,
+                    onOpenAppRouting = {
+                        navController.navigate(WirepnRoutes.EXCLUDED_APPS)
+                    },
                 )
+            }
+            composable(
+                route = WirepnRoutes.EXCLUDED_APPS,
+                enterTransition = { tabEnter() },
+                exitTransition = { tabExit() },
+                popEnterTransition = { tabEnter() },
+                popExitTransition = { tabExit() },
+            ) {
+                ExcludedAppsScreen(viewModel = viewModel)
             }
             if (BuildConfig.DEBUG) {
                 composable(

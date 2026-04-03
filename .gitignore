@@ -24,7 +24,6 @@ captures/
 
 # Signing (never commit keys)
 keystore.properties
-keystone.properties
 *.jks
 *.keystore
 

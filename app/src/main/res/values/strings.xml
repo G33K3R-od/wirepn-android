@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">WirePN</string>
+    <!-- Launcher/debug can override app_name; QS tile always uses this short brand label. -->
+    <string name="qs_tile_label">WirePN</string>
     <string name="app_subtitle">WireGuard VPN for Android</string>
 
     <string name="nav_connect">Connect</string>
@@ -49,6 +51,31 @@
     <string name="theme_dark">Dark</string>
     <string name="settings_version">Version</string>
     <string name="settings_about">WirePN uses the official WireGuard tunnel library (wireguard-go). Keys and configs are stored encrypted on device.</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="nav_back">Back</string>
+
+    <string name="notification_channel_vpn_name">VPN status</string>
+    <string name="notification_channel_vpn_description">Shown while WirePN is connecting or connected</string>
+    <string name="notification_vpn_title">WirePN</string>
+    <string name="notification_vpn_connected_text">Connected — %1$s</string>
+
+    <string name="settings_vpn_section">VPN &amp; network</string>
+    <string name="settings_always_on_hint">Opens Android VPN settings. “Always-on VPN” keeps the VPN connected automatically while the device is in use. “Block connections without VPN” blocks network access when the VPN is off. These options are set in Android system settings, not in WirePN.</string>
+    <string name="settings_open_vpn_settings">Open Android VPN settings</string>
+    <string name="settings_vpn_status_line">System reports — always-on VPN: %1$s · Block without VPN: %2$s</string>
+    <string name="settings_split_tunnel_exclude_count">Apps that bypass VPN: %d</string>
+    <string name="settings_split_tunnel_include_count">Apps that use VPN only: %d</string>
+    <string name="settings_app_routing_hint">Choose which apps use the VPN and which use your normal internet. If VPN is on, the tunnel updates automatically when you change the list.</string>
+    <string name="settings_manage_app_routing">Configure apps</string>
+    <string name="app_routing_title">VPN routing</string>
+    <string name="split_tunnel_mode_exclude">Bypass</string>
+    <string name="split_tunnel_mode_include">VPN only</string>
+    <string name="split_tunnel_subtitle_exclude">Selected apps use your normal connection instead of the VPN tunnel.</string>
+    <string name="split_tunnel_subtitle_include">Only selected apps use the VPN tunnel; other traffic stays outside the tunnel.</string>
+    <string name="split_tunnel_search_hint">Search apps</string>
+    <string name="split_tunnel_empty">No apps match your search.</string>
 
     <string name="logs_placeholder">Log viewer is available in debug builds. Release builds omit verbose diagnostics.</string>
     <string name="logs_title">Logs</string>

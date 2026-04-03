@@ -5,10 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.wirepn.android.data.AppPreferences
 import com.wirepn.android.data.ProfileRepository
+import com.wirepn.android.data.SplitTunnelMode
 import com.wirepn.android.data.ThemePreference
 import com.wirepn.android.vpn.TunnelNaming
 import com.wirepn.android.vpn.WireGuardTunnelController
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.wirepn.android.vpn.VpnConnectionState
 
 class MainViewModel(
     private val repository: ProfileRepository,
@@ -20,6 +27,42 @@ class MainViewModel(
     val activeProfileId = repository.activeProfileId
     val vpnState = wireGuard.state
     val themePreference = appPreferences.themePreference
+    val splitTunnelMode = appPreferences.splitTunnelMode
+    val splitTunnelAppPackages = appPreferences.splitTunnelAppPackages
+
+    private val _externalConnectSignal = MutableStateFlow(0)
+    val externalConnectSignal: StateFlow<Int> = _externalConnectSignal.asStateFlow()
+
+    private var splitTunnelReconnectJob: Job? = null
+
+    fun requestConnectFromExternal() {
+        _externalConnectSignal.value = _externalConnectSignal.value + 1
+    }
+
+    fun setSplitTunnelMode(mode: SplitTunnelMode) {
+        appPreferences.setSplitTunnelMode(mode)
+        scheduleReconnectIfVpnConnected()
+    }
+
+    fun setSplitTunnelAppPackages(packages: Set<String>) {
+        appPreferences.setSplitTunnelAppPackages(packages)
+        scheduleReconnectIfVpnConnected()
+    }
+
+    /** Re-applies the active profile so split-tunnel changes take effect without a manual reconnect. */
+    private fun scheduleReconnectIfVpnConnected() {
+        splitTunnelReconnectJob?.cancel()
+        splitTunnelReconnectJob = viewModelScope.launch {
+            delay(500)
+            if (vpnState.value !is VpnConnectionState.Connected) return@launch
+            val id = repository.activeProfileId.value ?: return@launch
+            val profile = repository.profileById(id) ?: return@launch
+            val name = TunnelNaming.fromDisplayName(profile.displayName, profile.id)
+            wireGuard.connect(profile.configText, name)
+        }
+    }
+
+    suspend fun queryVpnLockdown(): Pair<Boolean, Boolean> = wireGuard.queryVpnLockdown()
 
     fun setThemePreference(preference: ThemePreference) {
         appPreferences.setThemePreference(preference)

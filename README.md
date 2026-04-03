@@ -7,7 +7,7 @@
 
 A **WireGuard** client in the **WirePN** family: import profiles, manage tunnels, connect and disconnect using the standard Android VPN API.
 
-**Latest release:** [v0.1.0](https://github.com/G33K3R-od/wirepn-android/releases/tag/v0.1.0) · [CHANGELOG.md](CHANGELOG.md)
+**Latest release:** [v1.0.0](https://github.com/G33K3R-od/wirepn-android/releases/tag/v1.0.0) · [CHANGELOG.md](CHANGELOG.md)
 
 | | |
 |---|---|
@@ -20,6 +20,7 @@ A **WireGuard** client in the **WirePN** family: import profiles, manage tunnels
 - Import configuration from a `.conf` file or clipboard text
 - Multiple profiles and an active profile selector
 - Connection status and short error messages on screen
+- **Per-app routing:** exclude apps from the VPN tunnel, or use the VPN only for selected apps (split tunneling)
 - Bottom navigation: Connect / Profiles / Settings; debug builds also include a Logs screen
 - Theme: system / light / dark; default **en** strings, **ru** in `values-ru/`
 - Encrypted storage for configs and keys via **EncryptedSharedPreferences** (AES-GCM)
@@ -73,7 +74,21 @@ Then:
 ./gradlew bundleRelease
 ```
 
-**Without** `keystore.properties` / env, `assembleRelease` **fails locally** (no fallback), so you do not accidentally ship an unsigned release. **CI** without secrets still builds a **debug-signed** release APK for testing (see below).
+**Without** `keystore.properties` / env, `assembleRelease` still completes but produces an **unsigned** APK (`app-release-unsigned.apk`). That file is **not installable as-is** on most devices; sign it with your key or use **CI** (below), which applies a **debug-signed** release when no upload keystore secret is configured.
+
+**Installable release APK locally (same as CI without secrets):** set `CI=true` so the release build uses the Gradle **debug** keystore — output is **`app-release.apk`** (installable for testing; not for Play upload):
+
+```powershell
+# Windows PowerShell
+$env:CI="true"; .\gradlew.bat assembleRelease
+```
+
+```bash
+# Linux / macOS
+CI=true ./gradlew assembleRelease
+```
+
+**Debug APK for quick sideload:** `gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk` (package id `com.wirepn.android.debug`).
 
 ### CI release APK
 
@@ -92,8 +107,8 @@ The [Release APK](.github/workflows/release.yml) workflow:
 
 2. **If those secrets are missing:** the workflow still runs with **`CI=true`**, and the release build is signed with the **ephemeral CI debug keystore** (installable for tests; not for store uploads).
 
-- **Tag push** (`v*`, e.g. `v0.1.0`): uploads the APK to the workflow run **and** attaches it to a **GitHub Release** for that tag.
-- **Release notes:** add `RELEASE_NOTE_<tag>.md` at the repo root (e.g. `RELEASE_NOTE_v0.1.0.md`). If present, it becomes the release description; otherwise GitHub auto-generates notes from commits.
+- **Tag push** (`v*`, e.g. `v1.0.0`): uploads the APK to the workflow run **and** attaches it to a **GitHub Release** for that tag.
+- **Release notes:** add `RELEASE_NOTE_<tag>.md` at the repo root (e.g. `RELEASE_NOTE_v1.0.0.md`). If present, it becomes the release description; otherwise GitHub auto-generates notes from commits.
 - **Manual run** (*Actions → Release APK → Run workflow*): uploads the APK as a workflow **artifact** only (no GitHub Release).
 
 ## Architecture (`:app`)
