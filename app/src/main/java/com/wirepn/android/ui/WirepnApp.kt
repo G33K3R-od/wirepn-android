@@ -4,19 +4,23 @@ import android.app.Activity
 import android.net.VpnService
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.navigation.NavBackStackEntry
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Power
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.automirrored.rounded.Article
+import androidx.compose.material.icons.rounded.Group
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,22 +33,58 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.hierarchy
+import com.wirepn.android.BuildConfig
+import com.wirepn.android.MainViewModel
+import com.wirepn.android.R
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.wirepn.android.BuildConfig
-import com.wirepn.android.MainViewModel
-import com.wirepn.android.R
+import com.wirepn.android.ui.components.WirepnBottomBar
+import com.wirepn.android.ui.components.WirepnNavTab
 import com.wirepn.android.ui.components.WirepnTopBar
 import com.wirepn.android.ui.navigation.WirepnRoutes
 import com.wirepn.android.ui.screens.ConnectScreen
 import com.wirepn.android.ui.screens.LogsScreen
 import com.wirepn.android.ui.screens.ProfilesScreen
 import com.wirepn.android.ui.screens.SettingsScreen
+import com.wirepn.android.ui.state.rememberVpnDisplayState
+
+private val TabMotionEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+private const val TabEnterMs = 320
+private const val TabExitMs = 280
+
+private fun tabOrder(): List<String> = buildList {
+    add(WirepnRoutes.CONNECT)
+    add(WirepnRoutes.PROFILES)
+    add(WirepnRoutes.SETTINGS)
+    if (BuildConfig.DEBUG) add(WirepnRoutes.LOGS)
+}
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabEnter() =
+    slideInHorizontally(
+        initialOffsetX = {
+            val order = tabOrder()
+            val i = order.indexOf(initialState.destination.route)
+            val t = order.indexOf(targetState.destination.route)
+            val forward = (if (i >= 0) i else 0) < (if (t >= 0) t else 0)
+            if (forward) it else -it
+        },
+        animationSpec = tween(TabEnterMs, easing = TabMotionEasing),
+    ) + fadeIn(tween(TabEnterMs, easing = TabMotionEasing))
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabExit() =
+    slideOutHorizontally(
+        targetOffsetX = {
+            val order = tabOrder()
+            val i = order.indexOf(initialState.destination.route)
+            val t = order.indexOf(targetState.destination.route)
+            val forward = (if (i >= 0) i else 0) < (if (t >= 0) t else 0)
+            if (forward) -it / 3 else it / 3
+        },
+        animationSpec = tween(TabExitMs, easing = TabMotionEasing),
+    ) + fadeOut(tween(TabExitMs, easing = TabMotionEasing))
 
 @Composable
 fun WirepnApp(
@@ -53,6 +93,7 @@ fun WirepnApp(
     val profiles by viewModel.profiles.collectAsState()
     val activeId by viewModel.activeProfileId.collectAsState()
     val vpnState by viewModel.vpnState.collectAsState()
+    val vpnDisplay by rememberVpnDisplayState(vpnState)
     val themePreference by viewModel.themePreference.collectAsState()
     val context = LocalContext.current
 
@@ -106,48 +147,48 @@ fun WirepnApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val bottomItems = buildList {
-        add(BottomItem(WirepnRoutes.CONNECT, R.string.nav_connect, Icons.Outlined.Power))
-        add(BottomItem(WirepnRoutes.PROFILES, R.string.nav_profiles, Icons.Outlined.People))
-        add(BottomItem(WirepnRoutes.SETTINGS, R.string.nav_settings, Icons.Outlined.Settings))
+    val bottomTabs = buildList {
+        add(
+            WirepnNavTab(
+                route = WirepnRoutes.CONNECT,
+                labelRes = R.string.nav_tab_connect,
+                icon = Icons.Rounded.Shield,
+            ),
+        )
+        add(
+            WirepnNavTab(
+                route = WirepnRoutes.PROFILES,
+                labelRes = R.string.nav_tab_profiles,
+                icon = Icons.Rounded.Group,
+            ),
+        )
+        add(
+            WirepnNavTab(
+                route = WirepnRoutes.SETTINGS,
+                labelRes = R.string.nav_tab_settings,
+                icon = Icons.Rounded.Settings,
+            ),
+        )
         if (BuildConfig.DEBUG) {
-            add(BottomItem(WirepnRoutes.LOGS, R.string.nav_logs, Icons.Outlined.Description))
+            add(
+                WirepnNavTab(
+                    route = WirepnRoutes.LOGS,
+                    labelRes = R.string.nav_tab_logs,
+                    icon = Icons.AutoMirrored.Rounded.Article,
+                ),
+            )
         }
     }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { WirepnTopBar(vpnState = vpnState) },
+        topBar = { WirepnTopBar() },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 1.dp,
-            ) {
-                bottomItems.forEach { item ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(item.icon, contentDescription = null) },
-                        label = { Text(stringResource(item.labelRes)) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                }
-            }
+            WirepnBottomBar(
+                navController = navController,
+                tabs = bottomTabs,
+                currentDestination = currentDestination,
+            )
         },
     ) { padding ->
         NavHost(
@@ -157,15 +198,37 @@ fun WirepnApp(
                 .padding(padding)
                 .fillMaxSize(),
         ) {
-            composable(WirepnRoutes.CONNECT) {
+            composable(
+                route = WirepnRoutes.CONNECT,
+                enterTransition = { tabEnter() },
+                exitTransition = { tabExit() },
+                popEnterTransition = { tabEnter() },
+                popExitTransition = { tabExit() },
+            ) {
                 ConnectScreen(
-                    vpnState = vpnState,
+                    vpnDisplay = vpnDisplay,
                     activeProfileName = activeProfile?.displayName,
+                    hasActiveProfile = activeProfile != null,
                     onConnect = { requestConnect() },
                     onDisconnect = { viewModel.disconnect() },
+                    onOpenProfiles = {
+                        navController.navigate(WirepnRoutes.PROFILES) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                 )
             }
-            composable(WirepnRoutes.PROFILES) {
+            composable(
+                route = WirepnRoutes.PROFILES,
+                enterTransition = { tabEnter() },
+                exitTransition = { tabExit() },
+                popEnterTransition = { tabEnter() },
+                popExitTransition = { tabExit() },
+            ) {
                 ProfilesScreen(
                     profiles = profiles,
                     activeId = activeId,
@@ -175,14 +238,26 @@ fun WirepnApp(
                     onPasteSave = { name, text -> viewModel.addProfile(name, text) },
                 )
             }
-            composable(WirepnRoutes.SETTINGS) {
+            composable(
+                route = WirepnRoutes.SETTINGS,
+                enterTransition = { tabEnter() },
+                exitTransition = { tabExit() },
+                popEnterTransition = { tabEnter() },
+                popExitTransition = { tabExit() },
+            ) {
                 SettingsScreen(
                     themePreference = themePreference,
                     onThemeChange = { viewModel.setThemePreference(it) },
                 )
             }
             if (BuildConfig.DEBUG) {
-                composable(WirepnRoutes.LOGS) {
+                composable(
+                    route = WirepnRoutes.LOGS,
+                    enterTransition = { tabEnter() },
+                    exitTransition = { tabExit() },
+                    popEnterTransition = { tabEnter() },
+                    popExitTransition = { tabExit() },
+                ) {
                     LogsScreen()
                 }
             }
@@ -202,9 +277,3 @@ fun WirepnApp(
         )
     }
 }
-
-private data class BottomItem(
-    val route: String,
-    val labelRes: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-)

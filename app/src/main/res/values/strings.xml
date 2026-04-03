@@ -6,14 +6,25 @@
     <string name="nav_profiles">Profiles</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_logs">Logs</string>
+    <!-- Short labels for bottom navigation (single line, no wrap) -->
+    <string name="nav_tab_connect">Connect</string>
+    <string name="nav_tab_profiles">Profiles</string>
+    <string name="nav_tab_settings">Settings</string>
+    <string name="nav_tab_logs">Logs</string>
 
     <string name="status_disconnected">Disconnected</string>
     <string name="status_connecting">Connecting…</string>
+    <string name="status_disconnecting">Disconnecting…</string>
     <string name="status_connected">Connected</string>
     <string name="status_error">Error</string>
 
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
+    <string name="connect_choose_profile">Choose profile</string>
+    <string name="connect_retry">Try again</string>
+
+    <string name="profiles_title">Profiles</string>
+    <string name="profiles_subtitle">Import or paste a WireGuard configuration</string>
 
     <string name="profiles_empty">No profiles yet. Import a .conf file or paste configuration text.</string>
     <string name="profile_imported_default">Imported</string>
@@ -30,6 +41,8 @@
     <string name="connect_active_profile">Active profile</string>
     <string name="none_selected">None</string>
 
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Appearance and app info</string>
     <string name="settings_theme">Theme</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>

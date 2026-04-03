@@ -20,17 +20,21 @@ fun WirepnTheme(
     }
     val extraColors = if (darkTheme) {
         WirepnExtraColors(
-            textDim = WirepnPalette.DarkTextMuted,
-            dangerBg = Color(0x33F43F5E),
+            textDim = WirepnPalette.DarkTextDim,
+            dangerBg = Color(0x33FF6B6B),
             statusConnecting = WirepnPalette.StatusConnecting,
-            topFlourish = Color(0x1822C55E),
+            topAccent = Color(0x5000FFC2),
+            heroRingIdle = Color(0x4000FFC2),
+            heroGlow = Color(0x5500FFC2),
         )
     } else {
         WirepnExtraColors(
             textDim = WirepnPalette.LightTextDim,
-            dangerBg = WirepnPalette.LightDangerBg,
+            dangerBg = WirepnPalette.ErrorContainerLight,
             statusConnecting = WirepnPalette.StatusConnecting,
-            topFlourish = WirepnPalette.TopFlourishTint,
+            topAccent = Color(0x33007B83),
+            heroRingIdle = Color(0x26007B83),
+            heroGlow = Color(0x33007B83),
         )
     }
     val colorScheme = if (darkTheme) WirepnDarkScheme else WirepnLightScheme

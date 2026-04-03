@@ -6,14 +6,24 @@
     <string name="nav_profiles">Профили</string>
     <string name="nav_settings">Настройки</string>
     <string name="nav_logs">Журнал</string>
+    <string name="nav_tab_connect">VPN</string>
+    <string name="nav_tab_profiles">Профили</string>
+    <string name="nav_tab_settings">Настройки</string>
+    <string name="nav_tab_logs">Журнал</string>
 
     <string name="status_disconnected">Не подключено</string>
     <string name="status_connecting">Подключение…</string>
+    <string name="status_disconnecting">Отключение…</string>
     <string name="status_connected">Подключено</string>
     <string name="status_error">Ошибка</string>
 
     <string name="connect">Подключить</string>
     <string name="disconnect">Отключить</string>
+    <string name="connect_choose_profile">Выбрать профиль</string>
+    <string name="connect_retry">Повторить</string>
+
+    <string name="profiles_title">Профили</string>
+    <string name="profiles_subtitle">Импорт или вставка конфигурации WireGuard</string>
 
     <string name="profiles_empty">Нет профилей. Импортируйте .conf или вставьте текст конфигурации.</string>
     <string name="profile_imported_default">Импорт</string>
@@ -30,6 +40,8 @@
     <string name="connect_active_profile">Активный профиль</string>
     <string name="none_selected">Не выбран</string>
 
+    <string name="settings_title">Настройки</string>
+    <string name="settings_subtitle">Оформление и сведения</string>
     <string name="settings_theme">Тема</string>
     <string name="theme_system">Как в системе</string>
     <string name="theme_light">Светлая</string>
