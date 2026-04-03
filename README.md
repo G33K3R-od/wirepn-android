@@ -7,6 +7,8 @@
 
 A **WireGuard** client in the **WirePN** family: import profiles, manage tunnels, connect and disconnect using the standard Android VPN API.
 
+**Latest release:** [v0.1.0](https://github.com/G33K3R-od/wirepn-android/releases/tag/v0.1.0) · [CHANGELOG.md](CHANGELOG.md)
+
 | | |
 |---|---|
 | **Source code** | [github.com/G33K3R-od/wirepn-android](https://github.com/G33K3R-od/wirepn-android) |
