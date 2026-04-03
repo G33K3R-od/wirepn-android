@@ -4,44 +4,44 @@
 [![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com/about/versions/oreo)
 [![CI](https://github.com/G33K3R-od/wirepn-android/actions/workflows/ci.yml/badge.svg)](https://github.com/G33K3R-od/wirepn-android/actions/workflows/ci.yml)
 
-Мобильный клиент **WireGuard** в линейке **WirePN**: импорт профилей, список туннелей, подключение и отключение через стандартный Android VPN API.
+A **WireGuard** client in the **WirePN** family: import profiles, manage tunnels, connect and disconnect using the standard Android VPN API.
 
 | | |
 |---|---|
-| **Исходный код** | [github.com/G33K3R-od/wirepn-android](https://github.com/G33K3R-od/wirepn-android) |
-| **Страница проекта (GitHub)** | [github.com/G33K3R-od/WireGuard-app](https://github.com/G33K3R-od/WireGuard-app) |
-| **Лицензия** | [MIT](LICENSE) |
+| **Source code** | [github.com/G33K3R-od/wirepn-android](https://github.com/G33K3R-od/wirepn-android) |
+| **Project page (GitHub)** | [github.com/G33K3R-od/WireGuard-app](https://github.com/G33K3R-od/WireGuard-app) |
+| **License** | [MIT](LICENSE) |
 
-## Возможности
+## Features
 
-- Импорт конфигурации из `.conf` или из текста буфера обмена
-- Несколько профилей и выбор активного
-- Состояние подключения и краткие сообщения об ошибках на экране
-- Нижняя навигация: Connect / Profiles / Settings; в debug-сборке дополнительно экран Logs
-- Тема: системная / светлая / тёмная; локализация **en** по умолчанию, **ru** в `values-ru/`
-- Хранение конфигураций и ключей в **EncryptedSharedPreferences** (AES-GCM)
+- Import configuration from a `.conf` file or clipboard text
+- Multiple profiles and an active profile selector
+- Connection status and short error messages on screen
+- Bottom navigation: Connect / Profiles / Settings; debug builds also include a Logs screen
+- Theme: system / light / dark; default **en** strings, **ru** in `values-ru/`
+- Encrypted storage for configs and keys via **EncryptedSharedPreferences** (AES-GCM)
 
-Туннель построен на официальной библиотеке [`com.wireguard.android:tunnel`](https://github.com/WireGuard/wireguard-android) (**wireguard-go**, `GoBackend`).
+The tunnel uses the official [`com.wireguard.android:tunnel`](https://github.com/WireGuard/wireguard-android) library (**wireguard-go**, `GoBackend`).
 
-## Требования
+## Requirements
 
-| Компонент | Версия |
-|-----------|--------|
-| Android Studio | Koala (2024.1.1) или новее |
-| Android Gradle Plugin | 8.7.x (`gradle/libs.versions.toml`) |
+| Component | Version |
+|-----------|---------|
+| Android Studio | Koala (2024.1.1) or newer |
+| Android Gradle Plugin | 8.7.x (see `gradle/libs.versions.toml`) |
 | JDK | 17 |
 | minSdk / targetSdk | 26 / 35 |
 | Android SDK Platform | 35 |
 
-`local.properties` (создаётся Android Studio, в репозиторий не коммитится):
+`local.properties` (created by Android Studio; not committed):
 
 ```properties
 sdk.dir=C\:\\Users\\You\\AppData\\Local\\Android\\Sdk
 ```
 
-На Linux/macOS: `sdk.dir=/path/to/Android/sdk`.
+On Linux/macOS: `sdk.dir=/path/to/Android/sdk`.
 
-## Сборка
+## Build
 
 ```bash
 # Windows
@@ -51,29 +51,29 @@ gradlew.bat lint assembleDebug
 ./gradlew lint assembleDebug
 ```
 
-- **Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (у debug — суффикс `applicationId`: `.debug`).
-- **Release:** настройте `signingConfigs` в `app/build.gradle.kts` и подпись через свой keystore; ключи не храните в git.
+- **Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (debug uses `applicationId` suffix `.debug`).
+- **Release:** configure `signingConfigs` in `app/build.gradle.kts` and sign with your own keystore; never commit signing keys.
 
-## Архитектура (`:app`)
+## Architecture (`:app`)
 
-| Пакет | Назначение |
-|-------|------------|
-| `com.wirepn.android.data` | Модель профиля, EncryptedSharedPreferences, репозиторий |
-| `com.wirepn.android.vpn` | Обёртка над WireGuard (`GoBackend`, `Tunnel`) |
-| `com.wirepn.android.ui` | Jetpack Compose, Material 3, экраны, тема |
+| Package | Role |
+|---------|------|
+| `com.wirepn.android.data` | Profile model, EncryptedSharedPreferences, repository |
+| `com.wirepn.android.vpn` | WireGuard wrapper (`GoBackend`, `Tunnel`) |
+| `com.wirepn.android.ui` | Jetpack Compose, Material 3, screens, theme |
 
-**Стек:** Compose BOM, Material 3, Navigation Compose, Kotlin Serialization, `androidx.security:security-crypto`. DI — `Application` и фабрика `ViewModel`.
+**Stack:** Compose BOM, Material 3, Navigation Compose, Kotlin Serialization, `androidx.security:security-crypto`. DI via `Application` and `ViewModel` factory.
 
-## Безопасность
+## Security
 
-Не логируйте в релизе полный конфиг и приватные ключи. Текущий код не пишет содержимое конфигурации в лог.
+Do not log full configs or private keys in release builds. The current code does not log configuration contents.
 
-Сообщения об уязвимостях: [SECURITY.md](SECURITY.md).
+Vulnerability reports: [SECURITY.md](SECURITY.md).
 
-## Участие в разработке
+## Contributing
 
-См. [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Лицензия
+## License
 
-Проект — [MIT](LICENSE). Библиотека туннеля WireGuard распространяется под Apache-2.0 (артефакт `com.wireguard.android:tunnel`).
+This project is [MIT](LICENSE). The WireGuard tunnel library is licensed under Apache-2.0 (artifact `com.wireguard.android:tunnel`).

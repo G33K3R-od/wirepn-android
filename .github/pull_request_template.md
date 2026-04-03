@@ -1,21 +1,21 @@
-## Описание
+## Summary
 
-<!-- Что меняется и зачем (1–3 предложения). -->
+<!-- What changed and why (1–3 sentences). -->
 
-## Тип изменения
+## Type of change
 
-<!-- Отметьте подходящее. -->
+<!-- Check what applies. -->
 
-- [ ] Исправление ошибки
-- [ ] Новая возможность
-- [ ] Документация / инфраструктура
-- [ ] Прочее: <!-- кратко -->
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation / tooling
+- [ ] Other: <!-- briefly -->
 
-## Проверки
+## Checklist
 
-- [ ] `./gradlew lint assembleDebug` (или `gradlew.bat` на Windows) проходит локально
-- [ ] Не добавлено логирование секретов и полных конфигов WireGuard
+- [ ] `./gradlew lint assembleDebug` (or `gradlew.bat` on Windows) passes locally
+- [ ] No logging of secrets or full WireGuard configs was added
 
-## Заметки для ревью
+## Notes for reviewers
 
-<!-- Опционально: скриншоты UI, краевые случаи, известные ограничения. -->
+<!-- Optional: UI screenshots, edge cases, known limitations. -->

@@ -1,43 +1,43 @@
-# Участие в разработке WirePN (Android)
+# Contributing to WirePN (Android)
 
-Спасибо за интерес к проекту. Ниже — как устроен процесс и что ожидается от изменений.
+Thanks for your interest. This document describes the workflow and expectations for contributions.
 
-## Окружение
+## Environment
 
 - **JDK 17**
-- **Android Studio** с актуальным Android SDK (Platform **35**)
-- Клонирование и сборка из корня репозитория; путь к SDK — в `local.properties` (файл локальный, не коммитится)
+- **Android Studio** with an up-to-date Android SDK (Platform **35**)
+- Clone and build from the repository root; SDK path goes in `local.properties` (local file, not committed)
 
-Проверка перед PR (как в CI):
+Before opening a PR, run the same checks as CI:
 
 ```bash
 ./gradlew lint assembleDebug
 ```
 
-На Windows: `gradlew.bat lint assembleDebug`.
+On Windows: `gradlew.bat lint assembleDebug`.
 
-## Как предлагать изменения
+## How to propose changes
 
-1. Создайте ветку от `main` с понятным именем, например `fix/connection-state` или `feat/profile-import`.
-2. Один PR — одна логическая задача; большие рефакторинги лучше обсуждать отдельно (issue или черновик PR).
-3. В описании PR укажите **что** сделано и **зачем**; если исправление бага — как воспроизвести и что ожидать после фикса.
-4. Убедитесь, что `lint` и `assembleDebug` проходят локально.
+1. Branch off `main` with a clear name, e.g. `fix/connection-state` or `feat/profile-import`.
+2. One PR per logical change; large refactors are better discussed first (issue or draft PR).
+3. In the PR description, explain **what** changed and **why**; for bug fixes, include how to reproduce and expected behavior after the fix.
+4. Ensure `lint` and `assembleDebug` pass locally.
 
-## Стиль кода
+## Code style
 
-- **Kotlin**, **Jetpack Compose**, **Material 3** — ориентируйтесь на существующие файлы в `app/src/main/java/com/wirepn/android/`.
-- Имена и структура пакетов — как в текущем коде; избегайте лишних абстракций «на будущее».
-- Строки для пользователя: по возможности через ресурсы; для новых фраз учитывайте **en** и при необходимости **ru** (`values-ru/`).
+- **Kotlin**, **Jetpack Compose**, **Material 3** — follow patterns in `app/src/main/java/com/wirepn/android/`.
+- Naming and package layout should match the existing code; avoid speculative abstractions.
+- User-visible strings: prefer resources; for new copy, consider **en** and **ru** (`values-ru/`) where appropriate.
 
-## Безопасность и секреты
+## Security and secrets
 
-- Не коммитьте keystore, пароли, полные конфиги WireGuard с ключами, `local.properties` с личными путями, если они чувствительны.
-- Не добавляйте логирование приватных ключей и полного текста конфигурации.
+- Do not commit keystores, passwords, full WireGuard configs with keys, or sensitive paths in `local.properties`.
+- Do not add logging of private keys or full configuration text.
 
-## Лицензия
+## License
 
-Отправляя код, вы соглашаетесь, что он будет распространяться на условиях [LICENSE](LICENSE) проекта (MIT), если не оговорено иное явно.
+By contributing code, you agree it will be distributed under the project [LICENSE](LICENSE) (MIT), unless explicitly stated otherwise.
 
-## Вопросы
+## Questions
 
-Если поведение или объём изменений неочевидны — лучше сначала открыть issue с кратким описанием идеи, чтобы согласовать направление.
+If behavior or scope is unclear, open an issue with a short proposal so we can align before you invest a lot of time.

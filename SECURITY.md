@@ -1,8 +1,8 @@
-# Безопасность
+# Security
 
-Если вы нашли уязвимость в **WirePN для Android**, сообщите о ней ответственно.
+If you find a vulnerability in **WirePN for Android**, please report it responsibly.
 
-- **Не** публикуйте детали в открытых issue до согласования исправления, если речь о серьёзных проблемах (утечка ключей, обход шифрования, удалённое выполнение кода и т.п.).
-- Напишите владельцу репозитория через **Security advisories** на GitHub (вкладка *Security* → *Report a vulnerability*), если она доступна, либо через приватное сообщение владельцу аккаунта, с кратким описанием и шагами воспроизведения.
+- **Do not** post full details in public issues before a fix is coordinated for serious issues (key leakage, crypto bypass, remote code execution, etc.).
+- Contact the repository owner via GitHub **Security advisories** (*Security* → *Report a vulnerability*) when available, or via a private message to the account owner, with a short description and reproduction steps.
 
-Мы постараемся ответить в разумные сроки. Спасибо за помощь в улучшении безопасности проекта.
+We will try to respond in a reasonable timeframe. Thank you for helping keep the project secure.
